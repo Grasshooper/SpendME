@@ -59,7 +59,7 @@ export default function AdventureScreen() {
   const [showMorningModal, setShowMorningModal] = useState(false);
   const [showEveningModal, setShowEveningModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [userName] = useState('Gautam');
+  const [userName] = useState(userName);
   const [userLevel] = useState(1);
   const [userXP] = useState(75);
 
