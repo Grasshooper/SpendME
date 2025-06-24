@@ -185,7 +185,7 @@ export default function AdventureScreen() {
     const hour = new Date().getHours();
     if (hour < 12) return 'Ready for today\'s adventure?';
     if (hour < 18) return 'How\'s your quest going?';
-    return 'Time to reflect on your adventure!';
+    return 'Ready for today\'s spenditure?';
   };
 
   return (
