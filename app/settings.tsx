@@ -238,7 +238,6 @@ export default function SettingsScreen() {
 
           {/* App Info */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>About</Text>
             <View style={styles.infoContainer}>
               <Text style={styles.infoText}>Spendy-Budget Tracker</Text>
               <Text style={styles.infoSubtext}>Version 1.0.0</Text>
