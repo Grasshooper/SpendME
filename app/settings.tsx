@@ -240,11 +240,8 @@ export default function SettingsScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>About</Text>
             <View style={styles.infoContainer}>
-              <Text style={styles.infoText}>Spendy - Gamified Budget Tracker</Text>
+              <Text style={styles.infoText}>Spendy-Budget Tracker</Text>
               <Text style={styles.infoSubtext}>Version 1.0.0</Text>
-              <Text style={styles.infoSubtext}>
-                Turn your spending habits into an adventure!
-              </Text>
             </View>
           </View>
 
