@@ -9,13 +9,19 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { User, Calendar, Zap, Trophy, Settings, LogOut, DollarSign, TrendingUp } from 'lucide-react-native';
+import { User, Calendar, Zap, Trophy, Settings, LogOut, DollarSign, TrendingUp, ArrowLeft } from 'lucide-react-native';
 import ProfileCard from '@/components/ProfileCard';
 import StatsCard from '@/components/StatsCard';
 import ExpenseCard from '@/components/ExpenseCard';
 import { StorageService } from '@/utils/storage';
 import { DateUtils } from '@/utils/dateUtils';
 import { UserStats, Expense } from '@/types/data';
+import GameGradientBackground from '@/components/GameGradientBackground';
+import FloatingElements from '@/components/FloatingElements';
+import BounceIn from '@/components/BounceIn';
+import SlideUp from '@/components/SlideUp';
+import PulseRing from '@/components/PulseRing';
+import { useRouter } from 'expo-router';
 
 export default function ProfileScreen() {
   const [userStats, setUserStats] = useState<UserStats>({
@@ -32,6 +38,7 @@ export default function ProfileScreen() {
   const [userLevel] = useState(1);
   const [userXP] = useState(75);
   const [activeTab, setActiveTab] = useState<'profile' | 'expenses' | 'progress'>('profile');
+  const router = useRouter();
 
   useEffect(() => {
     loadData();
@@ -230,67 +237,94 @@ export default function ProfileScreen() {
   );
 
   return (
-    <LinearGradient
-      colors={['#8B45FF', '#581C87', '#3B0764']}
-      style={styles.container}
-    >
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Adventurer Profile</Text>
-          <TouchableOpacity style={styles.settingsButton}>
-            <Settings size={20} color="#FFFFFF" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Tab Navigation */}
-        <View style={styles.tabContainer}>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'profile' && styles.activeTab]}
-            onPress={() => setActiveTab('profile')}
-          >
-            <Text style={[styles.tabText, activeTab === 'profile' && styles.activeTabText]}>
-              Profile
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'expenses' && styles.activeTab]}
-            onPress={() => setActiveTab('expenses')}
-          >
-            <Text style={[styles.tabText, activeTab === 'expenses' && styles.activeTabText]}>
-              Expenses
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'progress' && styles.activeTab]}
-            onPress={() => setActiveTab('progress')}
-          >
-            <Text style={[styles.tabText, activeTab === 'progress' && styles.activeTabText]}>
-              Progress
-            </Text>
-          </TouchableOpacity>
-        </View>
-
+    <GameGradientBackground type="evening">
+      <FloatingElements />
+      <SafeAreaView style={{ flex: 1 }}>
         <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ flexGrow: 1 }}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
-          showsVerticalScrollIndicator={false}
-          style={styles.content}
         >
-          {activeTab === 'profile' && renderProfileTab()}
-          {activeTab === 'expenses' && renderExpensesTab()}
-          {activeTab === 'progress' && renderProgressTab()}
+          <SlideUp>
+            <View style={styles.header}>
+              <TouchableOpacity 
+                style={styles.settingsButton}
+                activeOpacity={0.8}
+                onPress={() => router.back()}
+              >
+                <PulseRing size={40} color="#FFD700">
+                  <ArrowLeft size={24} color="#FFD700" />
+                </PulseRing>
+              </TouchableOpacity>
+              <Text style={styles.title}>Adventurer Profile</Text>
+              <TouchableOpacity 
+                style={styles.settingsButton}
+                activeOpacity={0.8}
+                onPress={() => router.push('/settings')}
+              >
+                <PulseRing size={40} color="#FFD700">
+                  <Settings size={20} color="#FFD700" />
+                </PulseRing>
+              </TouchableOpacity>
+            </View>
+          </SlideUp>
 
-          {/* Exit Adventure Button */}
-          <TouchableOpacity style={styles.exitButton}>
-            <LogOut size={20} color="#FF6B6B" />
-            <Text style={styles.exitButtonText}>Exit Adventure</Text>
-          </TouchableOpacity>
+          <BounceIn>
+            <ProfileCard
+              userName={userName}
+              level={userLevel}
+              xp={userXP}
+              currentStreak={userStats.currentStreak}
+              totalBadges={userStats.badges.length}
+            />
+          </BounceIn>
+
+          <SlideUp>
+            <View style={styles.tabContainer}>
+              <TouchableOpacity
+                style={[styles.tab, activeTab === 'profile' && styles.activeTab]}
+                activeOpacity={0.85}
+                onPress={() => setActiveTab('profile')}
+              >
+                <Text style={[styles.tabText, activeTab === 'profile' && styles.activeTabText]}>
+                  Profile
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.tab, activeTab === 'expenses' && styles.activeTab]}
+                activeOpacity={0.85}
+                onPress={() => setActiveTab('expenses')}
+              >
+                <Text style={[styles.tabText, activeTab === 'expenses' && styles.activeTabText]}>
+                  Expenses
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.tab, activeTab === 'progress' && styles.activeTab]}
+                activeOpacity={0.85}
+                onPress={() => setActiveTab('progress')}
+              >
+                <Text style={[styles.tabText, activeTab === 'progress' && styles.activeTabText]}>
+                  Progress
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </SlideUp>
+
+          <BounceIn>
+            <View style={styles.content}>
+              {activeTab === 'profile' && renderProfileTab()}
+              {activeTab === 'expenses' && renderExpensesTab()}
+              {activeTab === 'progress' && renderProgressTab()}
+            </View>
+          </BounceIn>
 
           <View style={styles.bottomSpacer} />
         </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
+    </GameGradientBackground>
   );
 }
 

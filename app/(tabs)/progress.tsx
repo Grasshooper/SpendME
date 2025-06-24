@@ -10,11 +10,16 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import { Target, Edit3, Save, X } from 'lucide-react-native';
+import { Target, Edit3, Save, X, TrendingUp } from 'lucide-react-native';
 import BadgeCard from '@/components/BadgeCard';
 import { StorageService } from '@/utils/storage';
 import { DateUtils } from '@/utils/dateUtils';
 import { UserStats, Expense } from '@/types/data';
+import GameGradientBackground from '@/components/GameGradientBackground';
+import FloatingElements from '@/components/FloatingElements';
+import BounceIn from '@/components/BounceIn';
+import SlideUp from '@/components/SlideUp';
+import PulseRing from '@/components/PulseRing';
 
 export default function ProgressScreen() {
   const [userStats, setUserStats] = useState<UserStats>({
@@ -100,157 +105,60 @@ export default function ProgressScreen() {
   const isOverBudget = userStats.weeklyGoal > 0 && weeklySpent > userStats.weeklyGoal;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.header}>
-          <Text style={styles.title}>Progress</Text>
-        </View>
-
-        {/* Weekly Goal Section */}
-        <View style={[styles.goalContainer, isOverBudget && styles.goalContainerOverBudget]}>
-          <View style={styles.goalHeader}>
-            <View style={styles.goalTitleContainer}>
-              <Target size={20} color={isOverBudget ? '#EF4444' : '#10B981'} />
-              <Text style={styles.goalTitle}>Weekly Goal</Text>
+    <GameGradientBackground type="default">
+      <FloatingElements />
+      <SafeAreaView style={{ flex: 1 }}>
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ flexGrow: 1 }}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
+          <SlideUp>
+            <View style={styles.header}>
+              <Text style={styles.title}>Progress</Text>
             </View>
-            
-            {!editingGoal ? (
-              <TouchableOpacity
-                style={styles.editButton}
-                onPress={() => setEditingGoal(true)}
-              >
-                <Edit3 size={16} color="#6B7280" />
-              </TouchableOpacity>
-            ) : (
-              <View style={styles.editActions}>
-                <TouchableOpacity
-                  style={styles.saveButton}
-                  onPress={handleGoalSave}
-                >
-                  <Save size={16} color="#10B981" />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.cancelButton}
-                  onPress={handleGoalCancel}
-                >
-                  <X size={16} color="#EF4444" />
-                </TouchableOpacity>
+          </SlideUp>
+
+          <BounceIn>
+            <View style={styles.progressSummary}>
+              <TrendingUp size={24} color="#8B5CF6" />
+              <Text style={styles.progressTitle}>Weekly Progress</Text>
+            </View>
+          </BounceIn>
+
+          <SlideUp>
+            <View style={styles.progressStats}>
+              <View style={styles.progressStatItem}>
+                <Text style={styles.progressStatNumber}>{weeklyExpenses.length}</Text>
+                <Text style={styles.progressStatLabel}>Expenses This Week</Text>
               </View>
-            )}
-          </View>
-
-          {editingGoal ? (
-            <TextInput
-              style={styles.goalInput}
-              value={goalInput}
-              onChangeText={setGoalInput}
-              placeholder="Enter weekly goal"
-              keyboardType="decimal-pad"
-            />
-          ) : (
-            <Text style={styles.goalAmount}>
-              {DateUtils.formatCurrency(userStats.weeklyGoal)}
-            </Text>
-          )}
-
-          <View style={styles.progressContainer}>
-            <View style={styles.progressBar}>
-              <View 
-                style={[
-                  styles.progressFill, 
-                  { 
-                    width: `${goalProgress * 100}%`,
-                    backgroundColor: isOverBudget ? '#EF4444' : '#10B981'
-                  }
-                ]} 
-              />
+              <View style={styles.progressStatItem}>
+                <Text style={styles.progressStatNumber}>{DateUtils.formatCurrency(weeklySpent)}</Text>
+                <Text style={styles.progressStatLabel}>Weekly Total</Text>
+              </View>
             </View>
-            <Text style={[styles.progressText, isOverBudget && styles.progressTextOver]}>
-              {DateUtils.formatCurrency(weeklySpent)} spent this week
-            </Text>
-          </View>
+          </SlideUp>
 
-          {isOverBudget && (
-            <Text style={styles.overBudgetText}>
-              You're {DateUtils.formatCurrency(weeklySpent - userStats.weeklyGoal)} over budget
-            </Text>
-          )}
-        </View>
-
-        {/* Weekly Summary */}
-        <View style={styles.summaryContainer}>
-          <Text style={styles.sectionTitle}>This Week's Summary</Text>
-          
-          <View style={styles.summaryStats}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{weeklyExpenses.length}</Text>
-              <Text style={styles.statLabel}>Expenses</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>
-                {DateUtils.formatCurrency(weeklySpent)}
-              </Text>
-              <Text style={styles.statLabel}>Total Spent</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>
-                {weeklyExpenses.length > 0 
-                  ? DateUtils.formatCurrency(weeklySpent / weeklyExpenses.length)
-                  : '$0.00'
-                }
-              </Text>
-              <Text style={styles.statLabel}>Average</Text>
-            </View>
-          </View>
-
-          {getTopCategories().length > 0 && (
-            <View style={styles.categoriesContainer}>
-              <Text style={styles.categoriesTitle}>Top Categories</Text>
-              {getTopCategories().map(([category, amount], index) => (
-                <View key={category} style={styles.categoryItem}>
-                  <Text style={styles.categoryRank}>#{index + 1}</Text>
-                  <Text style={styles.categoryName}>{category}</Text>
-                  <Text style={styles.categoryAmount}>
-                    {DateUtils.formatCurrency(amount)}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          )}
-        </View>
-
-        {/* Badges Section */}
-        <View style={styles.badgesContainer}>
-          <Text style={styles.sectionTitle}>Achievements</Text>
-          
-          {userStats.badges.length > 0 ? (
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.badgesScroll}
-            >
-              {userStats.badges.map((badge, index) => (
-                <BadgeCard key={badge.id} badge={badge} />
-              ))}
-            </ScrollView>
-          ) : (
-            <View style={styles.noBadgesContainer}>
-              <Text style={styles.noBadgesText}>No badges yet</Text>
-              <Text style={styles.noBadgesSubtext}>
-                Keep checking in daily to unlock your first achievement!
+          <BounceIn>
+            <View style={styles.goalProgress}>
+              <Text style={styles.goalProgressTitle}>Weekly Goal Progress</Text>
+              <View style={styles.goalProgressBar}>
+                <PulseRing size={64} color={isOverBudget ? '#FF6B6B' : '#FFD700'}>
+                  <Text style={styles.goalProgressText}>{Math.round(goalProgress * 100)}%</Text>
+                </PulseRing>
+              </View>
+              <Text style={styles.goalProgressText}>
+                {DateUtils.formatCurrency(weeklySpent)} / {DateUtils.formatCurrency(userStats.weeklyGoal)}
               </Text>
             </View>
-          )}
-        </View>
+          </BounceIn>
 
-        <View style={styles.bottomSpacer} />
-      </ScrollView>
-    </SafeAreaView>
+          <View style={styles.bottomSpacer} />
+        </ScrollView>
+      </SafeAreaView>
+    </GameGradientBackground>
   );
 }
 
@@ -457,5 +365,65 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 100,
+  },
+  progressSummary: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  progressTitle: {
+    fontSize: 20,
+    fontFamily: 'Inter-Bold',
+    color: '#1F2937',
+    marginLeft: 8,
+  },
+  progressStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 16,
+  },
+  progressStatItem: {
+    alignItems: 'center',
+  },
+  progressStatNumber: {
+    fontSize: 18,
+    fontFamily: 'Inter-Bold',
+    color: '#1F2937',
+    marginBottom: 4,
+  },
+  progressStatLabel: {
+    fontSize: 12,
+    fontFamily: 'Inter-Medium',
+    color: '#6B7280',
+  },
+  goalProgress: {
+    backgroundColor: '#FFFFFF',
+    margin: 16,
+    padding: 20,
+    borderRadius: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+  },
+  goalProgressTitle: {
+    fontSize: 20,
+    fontFamily: 'Inter-Bold',
+    color: '#1F2937',
+    marginBottom: 16,
+  },
+  goalProgressBar: {
+    height: 64,
+    backgroundColor: '#E5E7EB',
+    borderRadius: 32,
+    marginBottom: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  goalProgressText: {
+    fontSize: 24,
+    fontFamily: 'Inter-Bold',
+    color: '#1F2937',
   },
 });

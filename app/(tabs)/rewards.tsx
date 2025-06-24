@@ -17,6 +17,11 @@ import WeeklyGoalCard from '@/components/WeeklyGoalCard';
 import { StorageService } from '@/utils/storage';
 import { DateUtils } from '@/utils/dateUtils';
 import { UserStats, Expense } from '@/types/data';
+import GameGradientBackground from '@/components/GameGradientBackground';
+import FloatingElements from '@/components/FloatingElements';
+import BounceIn from '@/components/BounceIn';
+import SlideUp from '@/components/SlideUp';
+import PulseRing from '@/components/PulseRing';
 
 export default function RewardsScreen() {
   const [userStats, setUserStats] = useState<UserStats>({
@@ -95,109 +100,49 @@ export default function RewardsScreen() {
   const isOverBudget = userStats.weeklyGoal > 0 && weeklySpent > userStats.weeklyGoal;
 
   return (
-    <LinearGradient
-      colors={['#8B45FF', '#581C87', '#3B0764']}
-      style={styles.container}
-    >
-      <SafeAreaView style={styles.safeArea}>
+    <GameGradientBackground type="evening">
+      <FloatingElements />
+      <SafeAreaView style={{ flex: 1 }}>
         <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ flexGrow: 1 }}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
-          showsVerticalScrollIndicator={false}
         >
-          <View style={styles.header}>
-            <Trophy size={24} color="#FFD700" />
-            <Text style={styles.title}>Rewards & Progress</Text>
-          </View>
-
-          {/* Weekly Goal Card */}
-          <WeeklyGoalCard
-            weeklyGoal={userStats.weeklyGoal}
-            weeklySpent={weeklySpent}
-            isOverBudget={isOverBudget}
-            editingGoal={editingGoal}
-            goalInput={goalInput}
-            onEditStart={() => setEditingGoal(true)}
-            onGoalInputChange={setGoalInput}
-            onGoalSave={handleGoalSave}
-            onGoalCancel={handleGoalCancel}
-          />
-
-          {/* Weekly Summary */}
-          <View style={styles.summaryContainer}>
-            <Text style={styles.sectionTitle}>This Week's Adventure</Text>
-            
-            <View style={styles.summaryStats}>
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{weeklyExpenses.length}</Text>
-                <Text style={styles.statLabel}>Quests</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>
-                  {DateUtils.formatCurrency(weeklySpent)}
-                </Text>
-                <Text style={styles.statLabel}>Total Spent</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>
-                  {weeklyExpenses.length > 0 
-                    ? DateUtils.formatCurrency(weeklySpent / weeklyExpenses.length)
-                    : '$0.00'
-                  }
-                </Text>
-                <Text style={styles.statLabel}>Average</Text>
-              </View>
+          <SlideUp>
+            <View style={styles.header}>
+              <Text style={styles.title}>Rewards</Text>
             </View>
+          </SlideUp>
 
-            {getTopCategories().length > 0 && (
-              <View style={styles.categoriesContainer}>
-                <Text style={styles.categoriesTitle}>Top Categories</Text>
-                {getTopCategories().map(([category, amount], index) => (
-                  <View key={category} style={styles.categoryItem}>
-                    <View style={styles.categoryRank}>
-                      <Star size={16} color="#FFD700" />
-                      <Text style={styles.categoryRankText}>#{index + 1}</Text>
-                    </View>
-                    <Text style={styles.categoryName}>{category}</Text>
-                    <Text style={styles.categoryAmount}>
-                      {DateUtils.formatCurrency(amount)}
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            )}
-          </View>
+          <BounceIn>
+            <WeeklyGoalCard
+              weeklyGoal={userStats.weeklyGoal}
+              spent={weeklySpent}
+              onEdit={() => setEditingGoal(true)}
+              isOverBudget={isOverBudget}
+            />
+          </BounceIn>
 
-          {/* Achievements Section */}
-          <View style={styles.badgesContainer}>
-            <Text style={styles.sectionTitle}>🏆 Achievements</Text>
-            
-            {userStats.badges.length > 0 ? (
-              <ScrollView 
-                horizontal 
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.badgesScroll}
-              >
-                {userStats.badges.map((badge, index) => (
-                  <BadgeCard key={badge.id} badge={badge} />
-                ))}
-              </ScrollView>
-            ) : (
-              <View style={styles.noBadgesContainer}>
-                <Text style={styles.noBadgesEmoji}>🎯</Text>
-                <Text style={styles.noBadgesText}>Complete quests to unlock achievements!</Text>
-                <Text style={styles.noBadgesSubtext}>
-                  Keep tracking your spending daily to earn your first badge
-                </Text>
-              </View>
-            )}
-          </View>
+          <SlideUp>
+            <View style={styles.sectionHeader}>
+              <Trophy size={20} color="#FFD700" />
+              <Text style={styles.sectionTitle}>Achievements</Text>
+            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {userStats.badges.map((badge, idx) => (
+                <BounceIn key={badge.id || idx}>
+                  <BadgeCard badge={badge} />
+                </BounceIn>
+              ))}
+            </ScrollView>
+          </SlideUp>
 
           <View style={styles.bottomSpacer} />
         </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
+    </GameGradientBackground>
   );
 }
 
@@ -326,5 +271,11 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 100,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+    paddingBottom: 12,
   },
 });

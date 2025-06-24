@@ -204,7 +204,7 @@ export default function AdventureScreen() {
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.headerLeft}>
-              <Text style={styles.welcomeText}>Welcome back, {userName}!</Text>
+              <Text style={styles.welcomeText}>Welcome back</Text>
               <Text style={styles.subtitleText}>{getWelcomeMessage()}</Text>
             </View>
             <View style={styles.headerRight}>

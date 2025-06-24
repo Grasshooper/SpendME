@@ -13,6 +13,11 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Settings, Tag, Plus, CreditCard as Edit3, Trash2, Save, X } from 'lucide-react-native';
 import { StorageService } from '@/utils/storage';
+import GameGradientBackground from '@/components/GameGradientBackground';
+import FloatingElements from '@/components/FloatingElements';
+import BounceIn from '@/components/BounceIn';
+import SlideUp from '@/components/SlideUp';
+import PulseRing from '@/components/PulseRing';
 
 const DEFAULT_CATEGORIES = [
   'Food & Dining',
@@ -98,153 +103,53 @@ export default function SettingsScreen() {
   };
 
   return (
-    <LinearGradient
-      colors={['#8B45FF', '#581C87', '#3B0764']}
-      style={styles.container}
-    >
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <Settings size={24} color="#FFFFFF" />
-          <Text style={styles.title}>Settings</Text>
-        </View>
-
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {/* Weekly Goal Setting */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Weekly Goal</Text>
-            <View style={styles.goalContainer}>
-              <TextInput
-                style={styles.goalInput}
-                value={weeklyGoal}
-                onChangeText={setWeeklyGoal}
-                placeholder="Enter weekly goal"
-                placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                keyboardType="decimal-pad"
-              />
-              <TouchableOpacity style={styles.saveGoalButton} onPress={handleSaveWeeklyGoal}>
-                <Save size={20} color="#FFFFFF" />
-              </TouchableOpacity>
+    <GameGradientBackground type="default">
+      <FloatingElements />
+      <SafeAreaView style={{ flex: 1 }}>
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ flexGrow: 1 }}
+        >
+          <SlideUp>
+            <View style={styles.header}>
+              <Text style={styles.title}>Settings</Text>
             </View>
-          </View>
+          </SlideUp>
 
-          {/* Notifications Setting */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Notifications</Text>
-            <View style={styles.notificationContainer}>
-              <Text style={styles.notificationText}>Daily Quest Reminders</Text>
-              <Switch
-                value={notifications}
-                onValueChange={setNotifications}
-                trackColor={{ false: 'rgba(255, 255, 255, 0.2)', true: '#10B981' }}
-                thumbColor={notifications ? '#FFFFFF' : 'rgba(255, 255, 255, 0.8)'}
-              />
+          <BounceIn>
+            <View style={styles.infoContainer}>
+              <Text style={styles.infoText}>Customize your adventure</Text>
+              <Text style={styles.infoSubtext}>Change categories, notifications, and more</Text>
             </View>
-          </View>
+          </BounceIn>
 
-          {/* Manage Categories */}
-          <View style={styles.section}>
+          <SlideUp>
             <View style={styles.sectionHeader}>
-              <Tag size={20} color="#FFFFFF" />
-              <Text style={styles.sectionTitle}>Manage Categories</Text>
-              <TouchableOpacity
-                style={styles.addButton}
-                onPress={() => setShowAddCategory(true)}
-              >
-                <Plus size={20} color="#FFFFFF" />
-              </TouchableOpacity>
+              <Text style={styles.sectionTitle}>Categories</Text>
             </View>
-
-            {showAddCategory && (
-              <View style={styles.addCategoryContainer}>
-                <TextInput
-                  style={styles.addCategoryInput}
-                  value={newCategory}
-                  onChangeText={setNewCategory}
-                  placeholder="Enter new category"
-                  placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                />
-                <TouchableOpacity style={styles.saveButton} onPress={handleAddCategory}>
-                  <Save size={16} color="#10B981" />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.cancelButton}
-                  onPress={() => {
-                    setShowAddCategory(false);
-                    setNewCategory('');
-                  }}
-                >
-                  <X size={16} color="#FF6B6B" />
-                </TouchableOpacity>
-              </View>
-            )}
-
             <View style={styles.categoriesList}>
-              {categories.map((category, index) => (
-                <View key={category} style={styles.categoryItem}>
-                  {editingCategory === category ? (
-                    <View style={styles.editCategoryContainer}>
-                      <TextInput
-                        style={styles.editCategoryInput}
-                        value={editCategoryText}
-                        onChangeText={setEditCategoryText}
-                        placeholder="Category name"
-                        placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                      />
-                      <TouchableOpacity style={styles.saveButton} onPress={handleSaveEdit}>
-                        <Save size={16} color="#10B981" />
+              {categories.map((cat, idx) => (
+                <BounceIn key={cat + idx}>
+                  <View style={styles.categoryItem}>
+                    <Text style={styles.categoryText}>{cat}</Text>
+                    <View style={styles.categoryActions}>
+                      <TouchableOpacity style={styles.editCategoryButton} activeOpacity={0.8} onPress={() => handleEditCategory(cat)}>
+                        <Edit3 size={18} color="#FFD700" />
                       </TouchableOpacity>
-                      <TouchableOpacity
-                        style={styles.cancelButton}
-                        onPress={() => {
-                          setEditingCategory(null);
-                          setEditCategoryText('');
-                        }}
-                      >
-                        <X size={16} color="#FF6B6B" />
+                      <TouchableOpacity style={styles.deleteCategoryButton} activeOpacity={0.8} onPress={() => handleDeleteCategory(cat)}>
+                        <X size={18} color="#FF6B6B" />
                       </TouchableOpacity>
                     </View>
-                  ) : (
-                    <>
-                      <Text style={styles.categoryText}>{category}</Text>
-                      <View style={styles.categoryActions}>
-                        <TouchableOpacity
-                          style={styles.editCategoryButton}
-                          onPress={() => handleEditCategory(category)}
-                        >
-                          <Edit3 size={16} color="rgba(255, 255, 255, 0.7)" />
-                        </TouchableOpacity>
-                        {!DEFAULT_CATEGORIES.includes(category) && (
-                          <TouchableOpacity
-                            style={styles.deleteCategoryButton}
-                            onPress={() => handleDeleteCategory(category)}
-                          >
-                            <Trash2 size={16} color="#FF6B6B" />
-                          </TouchableOpacity>
-                        )}
-                      </View>
-                    </>
-                  )}
-                </View>
+                  </View>
+                </BounceIn>
               ))}
             </View>
-          </View>
-
-          {/* App Info */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>About</Text>
-            <View style={styles.infoContainer}>
-              <Text style={styles.infoText}>Spendy - Gamified Budget Tracker</Text>
-              <Text style={styles.infoSubtext}>Version 1.0.0</Text>
-              <Text style={styles.infoSubtext}>
-                Turn your spending habits into an adventure!
-              </Text>
-            </View>
-          </View>
+          </SlideUp>
 
           <View style={styles.bottomSpacer} />
         </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
+    </GameGradientBackground>
   );
 }
 
