@@ -65,7 +65,7 @@ export default function AdventureScreen() {
   const [showMorningModal, setShowMorningModal] = useState(false);
   const [showEveningModal, setShowEveningModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [userName] = useState('Gautam');
+  const [userName] = useState('Thanks');
   const [userLevel] = useState(1);
   const [userXP] = useState(75);
   const router = useRouter();
@@ -192,7 +192,7 @@ export default function AdventureScreen() {
     const hour = new Date().getHours();
     if (hour < 12) return 'Ready for today\'s adventure?';
     if (hour < 18) return 'How\'s your quest going?';
-    return 'Time to reflect on your adventure!';
+    return 'Ready for today\'s spenditure?';
   };
 
   return (
