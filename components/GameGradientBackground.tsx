@@ -32,3 +32,4 @@ export const GameGradientBackground: React.FC<GameGradientBackgroundProps> = ({
 };
 
 export default GameGradientBackground;
+ 
