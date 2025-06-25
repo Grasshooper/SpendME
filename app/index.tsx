@@ -12,6 +12,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Flame, Trophy, Zap, Star, Calendar, Settings, User, Plus, Target } from 'lucide-react-native';
 import { router } from 'expo-router';
+import { useAuth } from '@/hooks/useAuth';
 import QuestCard from '@/components/QuestCard';
 import StreakCard from '@/components/StreakCard';
 import BadgeCollection from '@/components/BadgeCollection';
@@ -46,6 +47,7 @@ const EVENING_CATEGORIES = [
 ];
 
 export default function AdventureScreen() {
+  const { user, loading, signOut } = useAuth();
   const [morningCheckIn, setMorningCheckIn] = useState<CheckIn | null>(null);
   const [eveningCheckIn, setEveningCheckIn] = useState<CheckIn | null>(null);
   const [userStats, setUserStats] = useState<UserStats>({
@@ -63,9 +65,18 @@ export default function AdventureScreen() {
   const [userLevel] = useState(1);
   const [userXP] = useState(75);
 
+  // Redirect to login if not authenticated
   useEffect(() => {
-    loadData();
-  }, []);
+    if (!loading && !user) {
+      router.replace('/login');
+    }
+  }, [user, loading]);
+
+  useEffect(() => {
+    if (user) {
+      loadData();
+    }
+  }, [user]);
 
   const loadData = async () => {
     const checkIns = await StorageService.getCheckIns();
@@ -188,6 +199,30 @@ export default function AdventureScreen() {
     return 'Ready for today\'s spenditure?';
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    router.replace('/login');
+  };
+
+  if (loading) {
+    return (
+      <LinearGradient
+        colors={['#8B45FF', '#581C87', '#3B0764']}
+        style={styles.container}
+      >
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>Loading your adventure...</Text>
+          </View>
+        </SafeAreaView>
+      </LinearGradient>
+    );
+  }
+
+  if (!user) {
+    return null; // Will redirect to login
+  }
+
   return (
     <LinearGradient
       colors={['#8B45FF', '#581C87', '#3B0764']}
@@ -219,6 +254,12 @@ export default function AdventureScreen() {
                 onPress={() => router.push('/settings')}
               >
                 <Settings size={20} color="#FFFFFF" />
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.headerButton}
+                onPress={handleSignOut}
+              >
+                <Text style={styles.signOutText}>Sign Out</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -323,6 +364,16 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 18,
+    fontFamily: 'Inter-SemiBold',
+    color: '#FFFFFF',
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -344,6 +395,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  signOutText: {
+    fontSize: 10,
+    fontFamily: 'Inter-SemiBold',
+    color: '#FFFFFF',
   },
   welcomeText: {
     fontSize: 24,
