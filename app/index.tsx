@@ -65,13 +65,7 @@ export default function AdventureScreen() {
   const [userLevel] = useState(1);
   const [userXP] = useState(75);
 
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!loading && !user) {
-      router.replace('/login');
-    }
-  }, [user, loading]);
-
+  // Load data when user is available (no redirect logic here)
   useEffect(() => {
     if (user) {
       loadData();
@@ -220,7 +214,18 @@ export default function AdventureScreen() {
   }
 
   if (!user) {
-    return null; // Will redirect to login
+    return (
+      <LinearGradient
+        colors={['#8B45FF', '#581C87', '#3B0764']}
+        style={styles.container}
+      >
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>Redirecting...</Text>
+          </View>
+        </SafeAreaView>
+      </LinearGradient>
+    );
   }
 
   return (

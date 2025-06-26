@@ -12,11 +12,14 @@ import {
 } from '@expo-google-fonts/inter';
 import * as SplashScreen from 'expo-splash-screen'
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
+import { useAuth } from '@/hooks/useAuth';
+import { router } from 'expo-router';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   useFrameworkReady();
+  const { user, loading } = useAuth();
   const [fontsLoaded, fontError] = useFonts({
     'Inter-Regular': Inter_400Regular,
     'Inter-Medium': Inter_500Medium,
@@ -32,7 +35,23 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, fontError]);
 
+  // Handle authentication redirects after fonts and auth are loaded
+  useEffect(() => {
+    if (!loading && (fontsLoaded || fontError)) {
+      if (!user) {
+        router.replace('/login');
+      } else {
+        router.replace('/(tabs)');
+      }
+    }
+  }, [user, loading, fontsLoaded, fontError]);
+
+  // Show loading state while fonts or auth are loading
   if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
+  if (loading) {
     return null;
   }
 
